@@ -76,7 +76,7 @@ def generate_tiles(surface):
 			pg.draw.rect(surface, (0, 0, 0), (tile_start_x , tile_start_y, 16, 16))
 
 			# pg.draw.rect(surface, c.WHITE, (tile_start_x , tile_start_y, 15.5, 15.5))
-			surface.blit(pg.image.load(os.path.join('grass.png')), (tile_start_x, tile_start_y))
+			surface.blit(pg.image.load(os.path.join('grass.png')).convert_alpha(), (tile_start_x, tile_start_y))
 
 			tile_start_x += c.TILE_WIDTH
 
@@ -95,9 +95,9 @@ def generate_tiles(surface):
 		if tile is 'p':
 
 			pg.draw.rect(surface, (0, 0, 0), (tile_start_x, tile_start_y, 16, 16))
-			surface.blit(pg.image.load(os.path.join('grass.png')), (tile_start_x, tile_start_y))
+			surface.blit(pg.image.load(os.path.join('grass.png')).convert_alpha(), (tile_start_x, tile_start_y))
 
-			image = pg.image.load(os.path.join('talltree.png'))
+			image = pg.image.load(os.path.join('talltree.png')).convert_alpha()
 			image_rect = image.get_rect()
 			fatimg = pg.transform.scale(image, (image_rect[2] * 3, image_rect[3] * 3))
 			# surface.blit(fatimg, (tile_start_x, tile_start_y - 16))
@@ -111,7 +111,7 @@ def generate_tiles(surface):
 		# 	tile_start_x += c.TILE_WIDTH
 
 		if tile is 'r':
-			image = pg.image.load(os.path.join('rock.png'))
+			image = pg.image.load(os.path.join('rock.png')).convert_alpha()
 			image_rect = image.get_rect()
 			fatimg = pg.transform.scale(image, (image_rect[2] * 2, image_rect[3] * 2))
 			surface.blit(fatimg, (tile_start_x, tile_start_y - 64))

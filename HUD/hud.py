@@ -15,7 +15,7 @@ def make_hud(surface, player_object):
 	hot_bar_starting_x = hot_bar_rect.left + 10
 	hot_bar_starting_y = hot_bar_rect.top + 10
 
-	sword = pg.image.load(os.path.join('sword.png'))
+	sword = pg.image.load(os.path.join('sword.png')).convert_alpha()
 	sword_rect = sword.get_rect()
 
 	xp_bar = pg.draw.line(surface, c.WHITE, (hot_bar_rect.left, hot_bar_rect.top - 11), (hot_bar_rect.right - 1, hot_bar_rect.top - 11), 20)

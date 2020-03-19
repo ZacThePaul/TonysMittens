@@ -7,6 +7,9 @@ from player import Player
 import coordinate_holder as ch
 from entity import Entity
 from items import item_dict
+import math
+import projectile
+
 
 class Game:
 
@@ -19,7 +22,7 @@ class Game:
 		self.caption = pg.display.set_caption(c.window_title)
 
 		background_surface = pg.Surface((c.window_width, c.window_height))
-		m.generate_tiles(background_surface)
+		# m.generate_tiles(background_surface)
 
 		self.running = True
 
@@ -29,25 +32,38 @@ class Game:
 
 		character = Player(self.screen, ch.master_coordinates['player']['x'], ch.master_coordinates['player']['y'])
 
+		shot = False
+		click_coords = []
+		bullet_coords = []
+
+		bullets = []
+
+		is_bg_drawn = False
+
 		while self.running:
+
+			pg.display.set_caption(str(self.clock.get_fps()))
 
 			self.time_elapsed += 1
 
 			# checking pressed keys
 			keys = pg.key.get_pressed()
+			mouse = pg.mouse.get_pos()
 
 			for event in pg.event.get():
-
-				mouse = pg.mouse.get_pos()
 
 				if event.type == pg.QUIT:
 					self.running = False
 
-			# repaints the background
+				if event.type == pg.MOUSEBUTTONUP:
+					shot = True
+
+					bullets.append(projectile.Projectile(character.x + 10, character.y + 10, 40, self.screen, (mouse[0], mouse[1]), (character.x, character.y)))
+
+			# repaints the background <- Why do i need this?
 			self.screen.fill((255, 255, 255))
 
-			# Replaced by OOP #
-			# moving = False
+			# self.screen.blit(background_surface, (0, 0))
 
 			direction = 'right'
 
@@ -62,13 +78,16 @@ class Game:
 			if keys[pg.K_a]:
 				character.x -= 8
 				character.is_moving = True
-				character.direction = 'left'
 			if keys[pg.K_d]:
 				character.x += 8
 				character.is_moving = True
-				character.direction = 'right'
 			if keys[pg.K_f]:
 				self.collision_detect(character)
+
+			if mouse[0] > character.x + 10:
+				character.direction = 'right'
+			else:
+				character.direction = 'left'
 
 			if keys[pg.K_1]:
 				character.equip_hotbar_item(0)
@@ -79,25 +98,27 @@ class Game:
 			if keys[pg.K_3]:
 				character.equip_hotbar_item(2)
 
-			self.screen.blit(background_surface, (0, 0))
+			if shot:
+				for bullet in bullets:
+					bullet.update_projectile()
 
 			# If the time is a multiple of ten and the player is not moving, move them up by one pixel #
 			if self.time_elapsed % 10 == 0 and not character.is_moving:
-				# character = Player(self.screen, ch.master_coordinates['player']['x'], ch.master_coordinates['player']['y'] - 1, 0, direction)
 				character.make_player(character.x, character.y - 3)
+
 			# If the player is moving #
 			elif character.is_moving:
 				# If the time is a multiple of five run one animation #
+
 				if self.time_elapsed % 3 == 0:
-					# character = Player(self.screen, ch.master_coordinates['player']['x'], ch.master_coordinates['player']['y'], moving_animation, direction)
 					character.make_player(character.x, character.y, moving_animation)
+
 					if moving_animation > 1:
 						moving_animation = 1
+
 					else:
 						moving_animation += 1
-				# Run the other animation #
-				# character = Player(self.screen, ch.master_coordinates['player']['x'], ch.master_coordinates['player']['y'], moving_animation, direction)
-				character.make_player(character.x, character.y, moving_animation)
+						character.make_player(character.x, character.y, moving_animation)
 
 			else:
 				# character = Player(self.screen, ch.master_coordinates['player']['x'], ch.master_coordinates['player']['y'])
@@ -108,9 +129,7 @@ class Game:
 				if entity != 'player':
 					inst_entity = Entity(self.screen, entity_attributes['x'], entity_attributes['y'], item_dict[entity]['icon'], item_dict[entity]['sprite'])
 
-			# for inv_item, inv_item_attribute in character.inventory.items():
-			# 	if inv_item_attribute['equipped']:
-			# 		inst_inv_entity = Entity(self.screen, ch.master_coordinates['player']['x'] + 6, ch.master_coordinates['player']['y'] + 15, item_dict[inv_item]['icon'], item_dict[inv_item]['sprite'], direction)
+			pg.draw.line(self.screen, c.FIERCE_YELLOW, (character.x + 10, character.y + 10), mouse)
 
 			hud.make_hud(self.screen, character)
 
@@ -139,20 +158,9 @@ class Game:
 					if ex + entity_attributes['width'] > rex - broad_detect and ex < rex + reference_entity_attributes['width'] + broad_detect:
 						if ey + entity_attributes['height'] > rey - broad_detect and ey < rey + reference_entity_attributes['height'] + broad_detect:
 
-							# Add in the "equip" code here #
 							if entity != 'player':
-								# if entity in c.PLAYER_INVENTORY:
-								# 	new_quantity = int(c.PLAYER_INVENTORY[entity]['quantity']) + 1
-								# 	c.PLAYER_INVENTORY[entity]['quantity'] = str(new_quantity)
-								# 	kill_list.append(entity)
-								# elif entity not in c.PLAYER_INVENTORY:
-								# 	c.PLAYER_INVENTORY[entity] = item_dict[entity]
-								# 	kill_list.append(entity)
 								killed_item = player_object.pickup_item(entity, item_dict[entity])
 								kill_list.append(killed_item)
-
-							# Detect if an entity is colliding with another entity #
-							# Nested to save processing power #
 
 							if ex + entity_attributes['width'] > rex and ex < rex + reference_entity_attributes['width']:
 								if ey + entity_attributes['height'] > rey and ey < rey + reference_entity_attributes['height']:

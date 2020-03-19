@@ -17,6 +17,7 @@ class Player:
 		self.direction = direction
 		self.equipped_item = ''
 		self.inventory = {}
+		self.rect = None
 
 	def make_player(self, x=None, y=None, animation=0):
 
@@ -26,6 +27,8 @@ class Player:
 
 		image = pg.image.load(os.path.join(self.animations[animation]))
 		image_rect = image.get_rect()
+
+		self.rect = image_rect
 
 		fatimg = pg.transform.scale(image, (image_rect[2] * 3, image_rect[3] * 3))
 
